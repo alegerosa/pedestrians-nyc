@@ -12,8 +12,10 @@ location_count_pm <- select(pedcount,
 #Add one column with the difference between pedestrian count in 2015 and 2007, this is to see if any glaring super-growth areas pop up. They didn't.
 with_total_difference <- mutate(location_count_pm,
                                  Total_Diff = May15_PM - May07_PM)
-with_total_difference <- arrange(with_total_difference, Total_Diff)
+with_total_difference <- arrange(with_total_difference, desc(Total_Diff))
 with_total_difference
+
+hist(with_total_difference$Total_Diff)
 
 #I need to reshape my data to get the plot I want
 df_for_plot <- melt(location_count_pm, id.vars = c("Loc", "Borough"))
@@ -37,3 +39,4 @@ ggplot(data = df_Staten_Island) + geom_line(mapping = aes(x = variable, y = valu
 #Create a map that I'll later overlay the data on
 nyc_map <- get_map(location = c(lon = -74.00, lat = 40.71),  zoom = 11)
 ggmap(nyc_map)
+
