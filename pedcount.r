@@ -1,6 +1,7 @@
 library(tidyverse)
 library(reshape2)
 library(ggmap)
+library(lubridate)
 register_google(key = Sys.getenv("google_maps_key"))
 pedcount <- read_csv("PedCountLocationsMay2015.csv")
 
@@ -100,3 +101,60 @@ pedcount6 <- pedcount5 %>%
 View(pedcount6)
 
 #Done! Now we just need to extract from "date_coding" and "measurement_coding" the information that is relevant and not redundant
+pedcount7 <- pedcount6 %>%
+  mutate(
+   type_of_measurement = case_when(
+     str_sub(measurement_coding, -1, -1) == "D" ~ "Weekend Noon",
+     str_sub(measurement_coding, -2, -1) == "AM" ~ "Weekday Morning",
+     str_sub(measurement_coding, -2, -1) == "PM" ~ "Weekday Evening"),
+   season = case_when(
+     str_sub(date_coding, 1, 3) == "May" ~ "Spring",
+     str_sub(date_coding, 1, 3) == "Sep" ~ "Fall"))
+View(pedcount7)
+summary(pedcount7)
+sum(is.na(pedcount7$season))
+
+table(pedcount7$date)
+##to fix the dates, first change dates to first 10 characters of date, then use lubridate to change data type.
+pedcount7$date <- str_sub(pedcount7$date, 1, 10)
+pedcount7$date <- mdy(pedcount7$date)
+table(pedcount7$date)
+
+#Now drop the redundant 'coding' columns and we are all set
+pedcount8 <- select(pedcount7, -c('measurement_coding', 'date_coding'))
+
+#Some Exploratory graphics
+#Differences between types of measurements
+pedcount8 %>% ggplot(aes(x = type_of_measurement, y = ped_count)) +
+  geom_boxplot()
+#Differences between seasons
+pedcount8 %>% ggplot(aes(x = season, y = ped_count)) +
+  geom_boxplot()
+##Note theis is one outlier that seems extreme enoug to be a mistake
+#Differences between boroughs
+pedcount8 %>% ggplot(aes(x = Borough, y = ped_count)) +
+  geom_boxplot()
+
+#Scatterplot by date
+pedcount8 %>% ggplot(aes(x = date, y = ped_count)) +
+  geom_point(aes(alpha = 0.6))
+
+#Interesting, let's see the distributions, per year
+pedcount8 %>% ggplot(aes(x = as.factor(year(date)), y = ped_count)) +
+  geom_boxplot()
+#Now let's do the same but without the bigger numbers
+pedcount8 %>% filter(ped_count < 12500) %>%
+  ggplot(aes(x = as.factor(year(date)), y = ped_count)) +
+  geom_boxplot()
+
+#No evidence that there're  more people in new york (as a whole).
+
+#I'll also be doing with lat ton for fun and curiosity
+pedcount8 %>% ggplot(aes(x = lat, y = ped_count)) +
+  geom_point(aes(alpha = 0.6))
+pedcount8 %>% ggplot(aes(x = lon, y = ped_count)) +
+  geom_point(aes(alpha = 0.6))
+
+#Annd now a scatterplot over the map
+ggmap(nyc_map) +
+  geom_point(aes(lon, lat, color = Borough, size = ped_count, alpha = 0.6), data = pedcount8)
