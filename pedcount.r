@@ -77,13 +77,11 @@ head(pedcount2)
 pedcount3 <- pedcount2 %>%
   gather(key = "date_coding", value = "date", contains("_D")) %>%
   select(lon, lat, Loc, Borough, Street, From_, To, Index, date_coding, date, everything())
-View(pedcount3)
 
 #I am confused, but I am going to hold that thought and gather the columns with pedestrian counts, to see where it takes me
 
 pedcount4 <- pedcount3 %>%
   gather(key = "measurement_coding", value = "ped_count", 11:61)
-View(pedcount4)
 
 
 #Now I have a ton of duplicates, because I really need only one combination of Location, date and pedcount, but how do I know which one?
@@ -92,13 +90,11 @@ View(pedcount4)
 
 pedcount5 <- pedcount4 %>%
   filter(str_sub(date_coding, 1, 6) == str_sub(measurement_coding, 1, 6))
-View(pedcount5)
 
 #YAY, we got rid of most of them. However, each value is still in two different rows only one of which has properly matching date and measurement coding. We shouldn't have two 'May07_AM' rows for the same location with he same value; the reason we do is that the dates are different, and one is a weekday measurement and the other a weekend measurement. How do we know which is the one to keep? well, Weekdays have one AM and one PM measurement, and weekends have only one measurement, coded MD. So, in this case, we need to keep the row where date_coding is _D. In general, we need to keep all rows where _D in date_coding meets _AM OR _PM in measurement_coding and all rows where _D2 in date_coding matches _MD in measurement coding
 
 pedcount6 <- pedcount5 %>%
   filter((str_sub(date_coding, -1, -1) == "2" & str_sub(measurement_coding, -1, -1) == "D") | (str_sub(date_coding, -1, -1) == "D" & str_sub(measurement_coding, -1, -1) == "M"))
-View(pedcount6)
 
 #Done! Now we just need to extract from "date_coding" and "measurement_coding" the information that is relevant and not redundant
 pedcount7 <- pedcount6 %>%
@@ -110,7 +106,6 @@ pedcount7 <- pedcount6 %>%
    season = case_when(
      str_sub(date_coding, 1, 3) == "May" ~ "Spring",
      str_sub(date_coding, 1, 3) == "Sep" ~ "Fall"))
-View(pedcount7)
 summary(pedcount7)
 sum(is.na(pedcount7$season))
 
@@ -150,11 +145,11 @@ pedcount8 %>% filter(ped_count < 12500) %>%
 #No evidence that there're  more people in new york (as a whole).
 
 #I'll also be doing with lat ton for fun and curiosity
-pedcount8 %>% ggplot(aes(x = lat, y = ped_count)) +
-  geom_point(aes(alpha = 0.6))
-pedcount8 %>% ggplot(aes(x = lon, y = ped_count)) +
-  geom_point(aes(alpha = 0.6))
+pedcount8 %>% ggplot(aes(x = lat, y = ped_count, color = Borough)) +
+  geom_point(alpha = 0.4)
+pedcount8 %>% ggplot(aes(x = lon, y = ped_count, color = Borough)) +
+  geom_point(alpha = 0.4)
 
 #Annd now a scatterplot over the map
 ggmap(nyc_map) +
-  geom_point(aes(lon, lat, color = Borough, size = ped_count, alpha = 0.6), data = pedcount8)
+  geom_point(aes(lon, lat, color = Borough, size = ped_count), alpha = 0.4, data = pedcount8)
