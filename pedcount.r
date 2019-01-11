@@ -150,6 +150,19 @@ pedcount8 %>% ggplot(aes(x = lat, y = ped_count, color = Borough)) +
 pedcount8 %>% ggplot(aes(x = lon, y = ped_count, color = Borough)) +
   geom_point(alpha = 0.4)
 
-#Annd now a scatterplot over the map
+#And now a scatterplot over the map
 ggmap(nyc_map) +
-  geom_point(aes(lon, lat, color = Borough, size = ped_count), alpha = 0.4, data = pedcount8)
+  geom_point(data = group_by(pedcount8, lon, lat, Borough) %>% summarise(ped_count = sum(ped_count)), aes(lon, lat, color = Borough, size = ped_count), alpha=0.7)
+
+
+mean_by_year_by_location <- group_by(pedcount8, lon, lat, Borough, year = year(date), location = as.factor(Loc)) %>% summarise(ped_count = mean(ped_count))
+
+median_by_year_by_location <- group_by(pedcount8, lon, lat, Borough, year = year(date), location = as.factor(Loc)) %>% summarise(ped_count = median(ped_count))
+
+ggplot(mean_by_year_by_location, aes(x = year, y = ped_count, color = Borough)) + geom_point()
+ggplot(median_by_year_by_location, aes(x = year, y = ped_count, color = Borough)) + geom_point()
+
+ggplot(pedcount8, aes(year(date), ped_count, fill = Borough)) + geom_col()  
+#Seems weird that 2015 shows such a steep decrease. I suspet that we don't have the full year's worth of data
+filter(pedcount8, year(date) == 2015) %>% group_by(date) %>% summarise(ped_count = sum(ped_count))
+#Confirmed. #Solution? 1- Check for more updated version of the dataset. If that's not available, then filter out 2015 data from any comparison that sums by year.
