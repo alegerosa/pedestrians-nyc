@@ -163,6 +163,6 @@ ggplot(mean_by_year_by_location, aes(x = year, y = ped_count, color = Borough)) 
 ggplot(median_by_year_by_location, aes(x = year, y = ped_count, color = Borough)) + geom_point()
 
 ggplot(pedcount8, aes(year(date), ped_count, fill = Borough)) + geom_col()  
-#Seems weird that 2015 shows such a steep decrease. I suspet that we don't have the full year's worth of data
+#Seems weird that 2015 shows such a steep decrease. I suspect that we don't have the full year's worth of data
 filter(pedcount8, year(date) == 2015) %>% group_by(date) %>% summarise(ped_count = sum(ped_count))
 #Confirmed. #Solution? 1- Check for more updated version of the dataset. If that's not available, then filter out 2015 data from any comparison that sums by year.
