@@ -5,6 +5,7 @@ library(lubridate)
 register_google(key = Sys.getenv("google_maps_key"))
 pedcount <- read_csv("PedCount.csv")
 
+summary(pedcount)
 ##Let's start with maps
 
 #Add a longitude and a latitud columns
@@ -108,6 +109,14 @@ pedcount <- pedcount %>%
       str_sub(date_coding, 1, 3) == "Sep" ~ "Fall"))
 summary(pedcount)
 sum(is.na(pedcount$season))
+
+#We have a problem: both the date and the ped_count columns are Class:character. Let's set them to the right datatypes
+
+class(pedcount$ped_count)
+pedcount$ped_count <- as.numeric(pedcount$ped_count)
+class(pedcount$ped_count)
+summary(pedcount$ped_count)
+
 
 table(pedcount$date)
 ##to fix the dates, first change dates to first 10 characters of date, then use lubridate to change data type.
