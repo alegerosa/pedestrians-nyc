@@ -6,3 +6,4 @@ A work in progress, using R to draw insights from data on pedestrian volume over
 Dataset downloaded from here https://data.cityofnewyork.us/Transportation/Bi-Annual-Pedestrian-Counts/2de2-6x2h
 Readme and metadata for the dataset can be found here: http://www.nyc.gov/html/dot/downloads/pdf/bi-annual-ped-count-readme.pdf
 
+adding a line
