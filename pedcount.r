@@ -3,7 +3,7 @@ library(reshape2)
 library(ggmap)
 library(lubridate)
 register_google(key = Sys.getenv("google_maps_key"))
-pedcount <- read_csv("PedCount.csv")
+pedcount2 <- read_csv("PedCount.csv")
 
 summary(pedcount)
 ##Let's start with maps
