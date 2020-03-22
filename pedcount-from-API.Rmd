@@ -124,11 +124,10 @@ Yes, these are actually missing.
 ```{r boxplots}
 
 pedcount_tidy %>% ggplot(
-  aes(x = year_month, y = ped_count)
+  aes(x = year_month, y = log(ped_count))
 ) +
   geom_boxplot() +
   facet_wrap("season", ncol = 1) +
   theme_minimal()
 
 ```
-
