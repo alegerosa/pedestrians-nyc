@@ -63,6 +63,7 @@ pedcount_tidy <- pedcount %>%
 ```
 
 "NAs introduced by coercion". Let's find out why and if there were actual numbers there that we need to fix.
+
 ```{r fix_NAs1}
 pedcount_tidy %>% count(year_month)
 pedcount_tidy %>% count(borough)
@@ -118,6 +119,16 @@ pedcount %>% select(starts_with("sept_08"), starts_with("may_19"))
 Yes, these are actually missing.
 
  Also, lon and lat are still lists, I should probably fix that.
+
+```{r}
+
+pedcount_tidy <- pedcount_tidy %>% mutate(
+  lon = as_vector(lon),
+  lat = as_vector(lat)
+)
+
+```
+
 
 # Analyze
 
